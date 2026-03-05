@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "Tire A",
+    "category": "tire",
+    "price": 3500,
+    "stock": 10
+  },
+  {
+    "id": 2,
+    "name": "Wheel B",
+    "category": "wheel",
+    "price": 12000,
+    "stock": 5
+  }
+]
