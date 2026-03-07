@@ -3,14 +3,25 @@ import { getProducts } from "../../src/api/products";
 import { ProductCart } from "./components/ProductCard";
 import {addToCart, calcCartTotals,updateQty,removeFromCart} from "./utils";
 
+const CART_STORAGE_KEY = "wheel-tire-shop:cart:v1"
 
 export default function App() {
   const [products, setProducts] = useState([]);  //cosnt [ตัวแปที่ใช้ดึงค่า, ตัวแปลที่ใช้เปลี่นยค่า] = useState(ค่าเริ่มต้น)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [cart, setCart] = useState([])
+  const [cart, setCart] = useState(()=>{
+    try{
+      const raw = localStorage.getItem(CART_STORAGE_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch{
+      return[];
+    }
+  })
 
   useEffect(() => {
+
     let isMounted = true;
 
     async function load() {
@@ -37,6 +48,13 @@ export default function App() {
   }, []); // 2. วงเล็บเหลี่ยมว่างๆ ตรงนี้สำคัญมาก! แปลว่า "ให้ทำคำสั่งใน useEffect ทั้งหมดนี้ แค่ครั้งเดียวตอนเปิดหน้าเว็บเท่านั้น"
 
   
+  useEffect(()=>{
+      try{
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    }catch{
+      // ถ้า storage เต็ม/blocked ก็ไม่ให้แอปพัง
+    }
+  },[cart])
  // ===== cart handler =====
   function handleAddToCart(product) {
     setCart((prevCart) =>
@@ -46,7 +64,9 @@ export default function App() {
       })
     );
   }
+
   const totals = calcCartTotals(cart);
+
   function handleIncrease(productId){
     setCart((prevCart)=>{
       const item = prevCart.find((x)=> x.id === productId);
@@ -99,6 +119,7 @@ export default function App() {
         <div>Subtotal: {totals.subtotal}</div>
       </div>
 
+{/* Cart Item */}
       <div style={{marginBottom:16 , padding: 12, border: "1px solid #ddd", borderRadius: 8}}>
         <div style={{fontWeight: 600, marginBottom: 8}}>Cart Item</div>
         {cart.length === 0 ? (
