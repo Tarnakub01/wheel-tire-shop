@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../../src/api/products";
 import { ProductCart } from "./components/ProductCard";
-import {addToCart, calcCartTotals} from "./utils";
+import {addToCart, calcCartTotals,updateQty,removeFromCart} from "./utils";
 
 
 export default function App() {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState([]);  //cosnt [ตัวแปที่ใช้ดึงค่า, ตัวแปลที่ใช้เปลี่นยค่า] = useState(ค่าเริ่มต้น)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [cart, setCart] = useState([])
@@ -22,7 +22,7 @@ export default function App() {
       if (!isMounted) return;
 
       if (error) {
-        setError(error.message ?? "unknown error");
+        setError(error.message ?? "unknown error"); // ถ้าดึงข้อมูลพัง ให้จด Error ลงความจำ (?? คือ ถ้าไม่มี message ให้ใช้คำว่า unknown error แทน)
         setProducts([]);
       } else {
         setProducts(data ?? []);
@@ -32,9 +32,9 @@ export default function App() {
     load();
 
     return () => {
-      isMounted = false;
+      isMounted = false; // ถ้าผู้ใช้กดปิดหน้าเว็บ หรือย้ายหน้า ให้เปลี่ยนเป็น false (บอกระบบว่าหน้านี้ตายแล้ว)
     };
-  }, []);
+  }, []); // 2. วงเล็บเหลี่ยมว่างๆ ตรงนี้สำคัญมาก! แปลว่า "ให้ทำคำสั่งใน useEffect ทั้งหมดนี้ แค่ครั้งเดียวตอนเปิดหน้าเว็บเท่านั้น"
 
   
  // ===== cart handler =====
@@ -46,8 +46,27 @@ export default function App() {
       })
     );
   }
+  const totals = calcCartTotals(cart);
+  function handleIncrease(productId){
+    setCart((prevCart)=>{
+      const item = prevCart.find((x)=> x.id === productId);
+      if(!item) return prevCart;
+      return updateQty(prevCart,productId, item.qty+1);
+    });
+  }
 
-const totals = calcCartTotals(cart);
+  function handleDecrease(productId){
+    setCart((prevCart)=>{
+      const item = prevCart.find((x)=> x.id === productId);
+      if(!item) return prevCart;
+      
+      return updateQty(prevCart, productId, item.qty - 1);
+    });
+  }
+
+  function handleRemove(productId){
+    setCart((prevCart)=> removeFromCart(prevCart, productId))
+  }
 
 
   if (loading) {
@@ -76,10 +95,50 @@ const totals = calcCartTotals(cart);
 {/* Cart Summary */}
       <div style={{ marginBottom: 16, padding: 12, border: "1px solid #ddd", borderRadius: 8 }}>
         <div style={{ fontWeight: 600 }}>Cart Summary</div>
-        <div>Total Qty: {totals.totalQty}</div>
+        <div>Total Qty: {totals.totalqty}</div>
         <div>Subtotal: {totals.subtotal}</div>
       </div>
 
+      <div style={{marginBottom:16 , padding: 12, border: "1px solid #ddd", borderRadius: 8}}>
+        <div style={{fontWeight: 600, marginBottom: 8}}>Cart Item</div>
+        {cart.length === 0 ? (
+          <div>Your cart is empty.</div>
+        ) : (
+          <div style={{display:"grid",gap: 8}}>
+            {cart.map((item=>(
+              <div
+              key={item.id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                padding: 10,
+                border: "1px solid #eee",
+                borderRadius: 8,
+              }}
+              >
+                <div style={{flex: 1}}>
+                  <div style={{fontWeight: 600}}>{item.name}</div>
+                  <div style={{fontSize:  12}}>Price: {item.price}</div>
+                </div>
+
+                <div style={{display: "flex", alignItems: "center",gap: 6}}>
+                  <button onClick={()=> handleDecrease(item.id)}>-</button>
+                  <div style={{minWidth: 24, textAlign: "center"}}>{item.qty}</div>
+                  <button onClick={()=> handleIncrease(item.id)}>+</button>
+                </div>
+
+                <div style={{minWidth: 110, textAlign: "right"}}>
+                  Line: {item.price * item.qty}
+                </div>
+
+                <button onClick={()=> handleRemove(item.id)}>Remove</button>
+              </div>
+            )))}
+          </div>
+        )}
+      </div>
 
       {products.length === 0 ? (
         <div>No products</div>
@@ -98,6 +157,5 @@ const totals = calcCartTotals(cart);
         </div>
       )}
     </div>
-  );
-}
+  );}
 
