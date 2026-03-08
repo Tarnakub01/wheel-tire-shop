@@ -5,6 +5,7 @@ export function FilterBar({
     onCategoryChange,
     sort,
     onSortChange,
+    onClear,
 }) {
     return (
         <div
@@ -15,7 +16,7 @@ export function FilterBar({
             borderRadius: 8,
             display: "grid",
             gap: 12,
-            gridTemplateColumns: "1fr 200px 200px",
+            gridTemplateColumns: "1fr 200px 200px 120px",
             alignItems: "center",
         }}
         >
@@ -54,6 +55,16 @@ export function FilterBar({
                     <option value="price_asc">Price: Low → High</option>
                     <option value="price_desc">Price: High → Low</option>
                 </select>
+            </div>
+
+            <div style={{alignSelf: "end"}}>
+                <button
+                type="button"
+                onClick={onClear}
+                style={{width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc"}}
+                >
+                    Clear
+                </button>
             </div>
         </div>
     );

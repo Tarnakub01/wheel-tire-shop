@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
-import { getProducts } from "../../src/api/products";
-import { ProductCard } from "./components/ProductCard";
+// import { ProductCard } from "./components/ProductCard";
 import { addToCart, calcCartTotals, updateQty, removeFromCart } from "./utils";
 import { FilterBar } from "./components/filterBar";
 import { ProductGrid } from "./components/ProductsGrid";
-
+import { useProducts } from "./hooks/useProducts";
 const CART_STORAGE_KEY = "wheel-tire-shop:cart:v1";
 
 export default function App() {
-  const [products, setProducts] = useState([]); //cosnt [ตัวแปที่ใช้ดึงค่า, ตัวแปลที่ใช้เปลี่นยค่า] = useState(ค่าเริ่มต้น)
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // const [products, setProducts] = useState([]); //cosnt [ตัวแปที่ใช้ดึงค่า, ตัวแปลที่ใช้เปลี่นยค่า] = useState(ค่าเริ่มต้น)
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState(null);
   const [cart, setCart] = useState(() => {
     try {
       const raw = localStorage.getItem(CART_STORAGE_KEY);
@@ -25,31 +24,34 @@ export default function App() {
   const [category, setCategory] = useState("all"); // all = ดูทั้งหมด Tire = ดูเฉพาะ Wheel = ดูเฉพาะ
   const [sort, setSort] = useState("price_asc"); //price_asc | price_desc
   const [debouncedQuery, setDebouncedQuery] = useState("");
-  useEffect(() => {
-    let isMounted = true;
 
-    async function load() {
-      setLoading(true);
-      setError(null);
 
-      const { data, error } = await getProducts();
+  const {products, loading, error} = useProducts();
+  // useEffect(() => {
+  //   let isMounted = true;
 
-      if (!isMounted) return;
+  //   async function load() {
+  //     setLoading(true);
+  //     setError(null);
 
-      if (error) {
-        setError(error.message ?? "unknown error"); // ถ้าดึงข้อมูลพัง ให้จด Error ลงความจำ (?? คือ ถ้าไม่มี message ให้ใช้คำว่า unknown error แทน)
-        setProducts([]);
-      } else {
-        setProducts(data ?? []);
-      }
-      setLoading(false); //แปลว่าสิ้นสุดการโหลด
-    }
-    load();
+  //     const { data, error } = await getProducts();
 
-    return () => {
-      isMounted = false; // ถ้าผู้ใช้กดปิดหน้าเว็บ หรือย้ายหน้า ให้เปลี่ยนเป็น false (บอกระบบว่าหน้านี้ตายแล้ว)
-    };
-  }, []); // 2. วงเล็บเหลี่ยมว่างๆ ตรงนี้สำคัญมาก! แปลว่า "ให้ทำคำสั่งใน useEffect ทั้งหมดนี้ แค่ครั้งเดียวตอนเปิดหน้าเว็บเท่านั้น"
+  //     if (!isMounted) return;
+
+  //     if (error) {
+  //       setError(error.message ?? "unknown error"); // ถ้าดึงข้อมูลพัง ให้จด Error ลงความจำ (?? คือ ถ้าไม่มี message ให้ใช้คำว่า unknown error แทน)
+  //       setProducts([]);
+  //     } else {
+  //       setProducts(data ?? []);
+  //     }
+  //     setLoading(false); //แปลว่าสิ้นสุดการโหลด
+  //   }
+  //   load();
+
+  //   return () => {
+  //     isMounted = false; // ถ้าผู้ใช้กดปิดหน้าเว็บ หรือย้ายหน้า ให้เปลี่ยนเป็น false (บอกระบบว่าหน้านี้ตายแล้ว)
+  //   };
+  // }, []); // 2. วงเล็บเหลี่ยมว่างๆ ตรงนี้สำคัญมาก! แปลว่า "ให้ทำคำสั่งใน useEffect ทั้งหมดนี้ แค่ครั้งเดียวตอนเปิดหน้าเว็บเท่านั้น"
 
   useEffect(() => {
     try {
@@ -107,6 +109,11 @@ export default function App() {
     setSort(value);
   }
 
+  function handleClearFilters(){
+    setQuery("")
+    setCategory("all")
+    setSort("price_asc");
+  }
   function handleIncrease(productId) {
     setCart((prevCart) => {
       const item = prevCart.find((x) => x.id === productId);
@@ -151,6 +158,10 @@ export default function App() {
     <div style={{ padding: 16 }}>
       <h1>Wheel & Tire Shop</h1>
 
+    <div style={{marginBottom:9, fontSize: 12, color: "#555"}}>
+      Showing {visibleProducts.length} of {products.length} product
+    </div>
+
       <FilterBar
         query={query}
         onQueryChange={handleQueryChange}
@@ -158,6 +169,7 @@ export default function App() {
         onCategoryChange={handleCategoryChange}
         sort={sort}
         onSortChange={handleSortChange}
+        onClear={handleClearFilters}
       />
 
       {/* Cart Summary */}

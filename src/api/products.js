@@ -26,7 +26,7 @@ function createError(type, message, originalError = null){
 
 
 async function fetchProducts(){
-    const response = await fetch("/src/data/products.mock.json");
+    const response = await fetch("/products.mock.json");
 
     if(!response.ok){
         throw new Error("failed to fetch Products");
@@ -80,7 +80,7 @@ function shouldFail() {
 }
 
 function timeout(ms){
-    return new Promise((_, reject)=>{
+    return new Promise((_, reject)=>{ // promise จะบังคับรับค่าอยู่ค่าคือ resolve หรือสำเร็จ กับ reject หรือล้มเหลวตามตำแหน่ง
         setTimeout(()=> reject(new Error("Request timeout")), ms)
     });
 }
