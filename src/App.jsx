@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getProducts } from "../../src/api/products";
 import { ProductCart } from "./components/ProductCard";
 import {addToCart, calcCartTotals,updateQty,removeFromCart} from "./utils";
+import { FilterBar } from "./components/filterBar";
 
 const CART_STORAGE_KEY = "wheel-tire-shop:cart:v1"
 
@@ -21,7 +22,7 @@ export default function App() {
   })
   const [query, setQuery] = useState(""); //search
   const [category, setCategory] = useState("all") // all = ดูทั้งหมด Tire = ดูเฉพาะ Wheel = ดูเฉพาะ
-  const [sort, setSort] = useState("price_asc)"; //price_asc | price_desc
+  const [sort, setSort] = useState("price_asc") //price_asc | price_desc
   useEffect(() => {
 
     let isMounted = true;
@@ -72,18 +73,31 @@ export default function App() {
   const visibleProducts = products
   .filter((p)=> {
     const q = query.trim().toLowerCase();
-    if(!q) return true;
-    return p.name.toLowerCase().includes(q);
+    if(!q) return true; //ถ้าช่องค้นหามันว่างเปล่า (ไม่มีตัวอักษร) ก็ให้ของทุกชิ้นผ่านตะแกรงนี้ไปได้เลย (return true) ไม่ต้องกรองทิ้ง"
+    return p.name.toLowerCase().includes(q); //ตรวจจับชื่อ: ถ้ามีการพิมพ์ค้นหา มันจะเช็คว่า ชื่อสินค้า (p.name) มีคำที่ลูกค้าพิมพ์ (q) ซ่อนอยู่ข้างในนั้นไหม (.includes)? ถ้ามีก็รอดไปด่านต่อไป ถ้าไม่มีก็ร่วงตกตะแกรงไปเลย
   })
   .filter((p)=>{
-    if (category === "all") return true;
-    return p.category === category;
+    if (category === "all") return true; //ถ้าลูกค้าเลือกดูทั้งหมด (category === "all") ก็สั่ง return true ปล่อยของที่เหลือผ่านไปได้เลย
+    return p.category === category; //ถ้าลูกค้าเลือก "tire" มันก็จะดึงเฉพาะของที่ป้ายชื่อหมวดหมู่ (p.category) ตรงกับคำว่า "tire" เท่านั้นให้รอดไปด่านต่อไป
   })
-  .sice()
+  .slice() // coppy Array | new object
   .sort((a,b) =>{
     if(sort === "price_asc") return a.price - b.price;
     return b.price - a.price;
   });
+
+  function handleQueryChange(value){
+    setQuery(value)
+  }
+
+  function handleCategoryChange(value){
+    setCategory(value)
+  }
+
+  function handleSortChange(value){
+    setSort(value)
+  }
+
 
   function handleIncrease(productId){
     setCart((prevCart)=>{
@@ -129,6 +143,16 @@ export default function App() {
   return (
     <div style={{ padding: 16 }}>
       <h1>Wheel & Tire Shop</h1>
+
+
+    <FilterBar
+    query={query}
+    onQuerychange={handleQueryChange}
+    category={category}
+    onCategoryChange={handleCategoryChange}
+    sort={sort}
+    onSortChange={handleSortChange}
+    />
 
 {/* Cart Summary */}
       <div style={{ marginBottom: 16, padding: 12, border: "1px solid #ddd", borderRadius: 8 }}>
@@ -179,8 +203,8 @@ export default function App() {
         )}
       </div>
 
-      {products.length === 0 ? (
-        <div>No products</div>
+      {visibleProducts.length === 0 ? (
+        <div>No products match your search.</div>
       ) : (
         <div
           style={{
