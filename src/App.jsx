@@ -19,7 +19,9 @@ export default function App() {
       return[];
     }
   })
-
+  const [query, setQuery] = useState(""); //search
+  const [category, setCategory] = useState("all") // all = ดูทั้งหมด Tire = ดูเฉพาะ Wheel = ดูเฉพาะ
+  const [sort, setSort] = useState("price_asc)"; //price_asc | price_desc
   useEffect(() => {
 
     let isMounted = true;
@@ -66,6 +68,22 @@ export default function App() {
   }
 
   const totals = calcCartTotals(cart);
+
+  const visibleProducts = products
+  .filter((p)=> {
+    const q = query.trim().toLowerCase();
+    if(!q) return true;
+    return p.name.toLowerCase().includes(q);
+  })
+  .filter((p)=>{
+    if (category === "all") return true;
+    return p.category === category;
+  })
+  .sice()
+  .sort((a,b) =>{
+    if(sort === "price_asc") return a.price - b.price;
+    return b.price - a.price;
+  });
 
   function handleIncrease(productId){
     setCart((prevCart)=>{
@@ -171,7 +189,7 @@ export default function App() {
             gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           }}
         >
-          {products.map((p) => (
+          {visibleProducts.map((p) => (
             <ProductCart key={p.id} product={p} onAdd={handleAddToCart} />
             
           ))}
