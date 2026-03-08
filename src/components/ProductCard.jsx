@@ -1,4 +1,4 @@
-export function ProductCart({ product, onAdd }) {
+export function ProductCard({ product, onAdd }) {
   return (
     <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
       <div style={{ fontWeight: 600 }}>{product.name}</div>

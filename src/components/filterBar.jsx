@@ -1,6 +1,6 @@
 export function FilterBar({
     query,
-    onQuerychange,
+    onQueryChange,
     category,
     onCategoryChange,
     sort,
@@ -24,7 +24,7 @@ export function FilterBar({
                 <div style={{fontSize: 12, marginBottom: 4 }}>Search</div>
                 <input
                 value={query}
-                onChange={(e)=> onQuerychange(e.target.value)}
+                onChange={(e)=> onQueryChange(e.target.value)}
                 placeholder="Search products"
                 style={{width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc"}}
                 />
@@ -35,7 +35,7 @@ export function FilterBar({
                 <div style={{fontSize: 12, marginBottom: 4 }}>Category</div>
                 <select
                 value={category}
-                onChange={(e)=> onCategoryChange(e.target.value)}
+                onChange={(e)=> onCategoryChange(e.target.value)} // ตามความเข้าใจก็คือ เหมือนเอา e มารอรับ ค่าที่ browser ส่งกลับมาไห้หรือการกระทำของ user แล้วมาเก็นไว้ที่ e จากนั้นส่ง e เข้าไปใน Fn แล้วดึงค่าที่ได้ออกมาจาก e 
                 style={{width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ccc"}}
                 >
                     <option value="all">All</option>
