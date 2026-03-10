@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-// import { ProductCard } from "./components/ProductCard";
-import { addToCart, calcCartTotals, updateQty, removeFromCart } from "./utils";
+import { addToCart, calcCartTotals, updateQty, removeFromCart,formatCurrentcy } from "./utils";
 import { FilterBar } from "./components/filterBar";
 import { ProductGrid } from "./components/ProductsGrid";
 import { useProducts } from "./hooks/useProducts";
@@ -63,8 +62,8 @@ export default function App() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 250);
+      setDebouncedQuery(query); //ถ้าเวลานี้หมดไห้ setTimeout ทำงาน คือไห้เอาค่าของ query ไปเก็บไว้ใน setDebounceQuery 
+    }, 250);// แต่ถ้าเวลายังไม่หมดแล้วมีการพิมมาเพิ่มจะทำการ clearTimeoutของตัวจับเวลา t แล้วนับเวลาใหม่ 
 
     return () => clearTimeout(t);
   }, [query]);
@@ -183,7 +182,7 @@ export default function App() {
       >
         <div style={{ fontWeight: 600 }}>Cart Summary</div>
         <div>Total Qty: {totals.totalqty}</div>
-        <div>Subtotal: {totals.subtotal}</div>
+        <div>Subtotal: {formatCurrentcy(totals.subtotal)}</div>
       </div>
 
       {/* Cart Item */}
@@ -227,7 +226,7 @@ export default function App() {
                 </div>
 
                 <div style={{ minWidth: 110, textAlign: "right" }}>
-                  Line: {item.price * item.qty}
+                  Line: {formatCurrentcy(item.price * item.qty)}
                 </div>
 
                 <button onClick={() => handleRemove(item.id)}>Remove</button>

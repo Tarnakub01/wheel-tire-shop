@@ -49,7 +49,14 @@ export function addToCart(cart, product) {
     throw new Error("product must have an id");
   }
 
-  const existingItem = cart.find(item => item.id === product.id);
+  const existingItem = cart.find(item => item.id === product.id); // ถ้าเกิดว่ากด addTocart ครั้งแรก cartเราจะเป็น[] เราอาจจะกด add product.id=1 
+  // เมื่อมันไม่เจอเลยมันจะคืนค่า undefined กลับไปที่ existingItem if จึงไม่ทงาน ข้ามไปทำ cart.concat หรือเอา ค่าของ ...product ไปต่อใน array of cart 
+  // จากนั้น ก็จะ retrun กลับไป update ค่าของ cart(setCart) หน้าตาใหม่ของ cart = ["id": 1,"name": "Tire A","category": "tire", "price": 3500,"stock": 10]
+  //ถ้าเกิดว่ามีการกดรอบที่ 2 ก็จะไห้ prevCart ไปดึงเอาค่า cart ที่อัปเดทแล้วมาเก็บไว้ในตัวเองแล้วส่งเข้ามาไห้ paramiter cart ใน fn ทำงาน
+  // สมมุติ มี 2 id แล้ว .find ก็ทำการเปลียบเทียบ item ไปค้นดูใน cart ที่มี 2 id หยิบ index แรก ที่เป็น id=1 เปลียบเทียบ item.id(1) === product.id(อยู่ที่ผู้ใช้กด + หรือ addTocart)
+  // ตอนนี้ไห้ product.id === 2 เมื่อ 1 เจอ 2 หรือ 1===2 เป็น false คือไม่สนใจ ไปหยิบ itemid=2 ต่อ หา 2===2 ture ผ่านไปใน if existingItem สิ่งที่ผ่านไปคือทั้งก้อน array id2
+  // แล้วให้ เอา item ที่รอดเข้ามาหรือ id2 ...item เอามาเทออก แล้วแก้ qty (สมมุติว่าitem.qty คือ 1) ก็จะเอา item.qty ไป + กับ product.qty 
+  // ที่ส่งเข้ามา ที่เราสั่งแก้ค่ามันไห้เป็น 1 เรียบร้อย ก็จะเป็น 1+1 = 2 return object ใหม่ออกไปทั้งก้อนที่ + qty เรียบร้อย ส่วน id1 ที่ไม่ตรง ก็โดน return item ออกไปเป็นหน้าตาเดิม
 
   if (existingItem) {
     return cart.map(item => {
