@@ -1,4 +1,4 @@
-export function formatCurrentcy(value){
+export function formatCurrency(value){
     const n = typeof value === "number" ? value : Number(value);
     if(Number.isNaN(n)) return "-"
     return new Intl.NumberFormat("th-TH",{

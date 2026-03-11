@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { addToCart, calcCartTotals, updateQty, removeFromCart,formatCurrentcy } from "./utils";
+import { addToCart, calcCartTotals, updateQty, removeFromCart,formatCurrency } from "./utils";
 import { FilterBar } from "./components/filterBar";
 import { ProductGrid } from "./components/ProductsGrid";
 import { useProducts } from "./hooks/useProducts";
@@ -23,6 +23,7 @@ export default function App() {
   const [category, setCategory] = useState("all"); // all = ดูทั้งหมด Tire = ดูเฉพาะ Wheel = ดูเฉพาะ
   const [sort, setSort] = useState("price_asc"); //price_asc | price_desc
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [toast, setToast] = useState(null); // { type: "success"|"warn"|"info", message: string }
 
 
   const {products, loading, error} = useProducts();
@@ -70,11 +71,28 @@ export default function App() {
 
   // ===== cart handler =====
   function handleAddToCart(product) {
-    setCart((prevCart) =>
-      addToCart(prevCart, {
+    const maxStock = product.stock ?? 0;
+    if(maxStock <= 0) {
+      showToast("warn","Out of stock");
+      return;
+    }
+    
+    setCart((prevCart) =>{
+      const existing = prevCart.find((x)=> x.id === product.id);
+      const currentQty = existing ? existing.qty : 0;
+
+      if(currentQty >= maxStock) {
+        showToast("warn","Reached max stock");
+        return prevCart;
+      }
+
+      //ถ้าผ่านเงื่อนไขมาได้ show ข้อความสำเร็จเลย
+      showToast("success", "Added to cart");
+      return addToCart(prevCart, {
         ...product,
         qty: 1,
-      }),
+      })
+     }
     );
   }
 
@@ -95,6 +113,9 @@ export default function App() {
       if (sort === "price_asc") return a.price - b.price;
       return b.price - a.price;
     });
+    //ทำไมต้องมี stockById? cart มีแต่ item ที่เราใส่เข้าไป (อาจไม่เก็บ stock) เวลาเช็ค stock จะได้ไม่ต้องวนหาใน products ทุกครั้งแบบกระจัดกระจาย
+    const stockById = Object.fromEntries(products.map((p)=> [p.id, p.stock ?? 0]))
+    const cartQtyById = Object.fromEntries(cart.map((i) => [i.id, i.qty]));
 
   function handleQueryChange(value) {
     setQuery(value);
@@ -117,6 +138,14 @@ export default function App() {
     setCart((prevCart) => {
       const item = prevCart.find((x) => x.id === productId);
       if (!item) return prevCart;
+
+      const maxStock = stockById[productId] ?? 0;
+      if(item.qty >= maxStock) {
+        showToast("warn", "Reached max stock");
+        return prevCart;
+      }
+
+      showToast("success","Quantity increased");
       return updateQty(prevCart, productId, item.qty + 1);
     });
   }
@@ -132,6 +161,13 @@ export default function App() {
 
   function handleRemove(productId) {
     setCart((prevCart) => removeFromCart(prevCart, productId));
+    showToast("info", "Removed item")
+  }
+  //เก็บ toast ใน state → UI render ตาม setTimeout ลบ toast หลัง 2 วิ clearTimeout กัน toast เก่าทับซ้อนกัน
+  function showToast(type, message){
+    setToast({ type,message});
+    window.clearTimeout(showToast._t);
+    showToast._t = window.setTimeout(()=> setToast(null),2000);
   }
 
   if (loading) {
@@ -156,6 +192,26 @@ export default function App() {
   return (
     <div style={{ padding: 16 }}>
       <h1>Wheel & Tire Shop</h1>
+    
+    {/* toast */}
+    {toast && (
+      <div
+      style={{
+        marginBottom: 12,
+        padding: 10,
+        borderRadius: 8,
+        border: "1px solid #ddd",
+        background:
+        toast.type === "success"
+        ? "#e8fff0"
+        : toast.type === "warn"
+        ? "#fff7e6"
+        : "#eef5ff",
+      }}
+      >
+        {toast.message}
+      </div>
+    )}
 
     <div style={{marginBottom:9, fontSize: 12, color: "#555"}}>
       Showing {visibleProducts.length} of {products.length} product
@@ -182,10 +238,10 @@ export default function App() {
       >
         <div style={{ fontWeight: 600 }}>Cart Summary</div>
         <div>Total Qty: {totals.totalqty}</div>
-        <div>Subtotal: {formatCurrentcy(totals.subtotal)}</div>
+        <div>Subtotal: {formatCurrency(totals.subtotal)}</div>
       </div>
 
-      {/* Cart Item */}
+      {/* Cart List */}
       <div
         style={{
           marginBottom: 16,
@@ -199,7 +255,13 @@ export default function App() {
           <div>Your cart is empty.</div>
         ) : (
           <div style={{ display: "grid", gap: 8 }}>
-            {cart.map((item) => (
+            {cart.map((item) => {
+              const maxStock = stockById[item.id] ?? 0;
+              const isAtMax = item.qty >= maxStock;
+              return(
+
+             
+              
               <div
                 key={item.id}
                 style={{
@@ -215,6 +277,11 @@ export default function App() {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 600 }}>{item.name}</div>
                   <div style={{ fontSize: 12 }}>Price: {item.price}</div>
+
+                  {/* {showstock} */}
+                  <div style={{ fontSize: 12, color: "#666"}}>
+                    Stock: {maxStock}
+                  </div>
                 </div>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -222,16 +289,24 @@ export default function App() {
                   <div style={{ minWidth: 24, textAlign: "center" }}>
                     {item.qty}
                   </div>
-                  <button onClick={() => handleIncrease(item.id)}>+</button>
+                  <button 
+                  type="button"
+                  onClick={() => handleIncrease(item.id)}
+                  style={{opacity: maxStock === 0 || isAtMax ? 0.5 : 1}}
+                  >
+                    +
+                  </button>
                 </div>
 
                 <div style={{ minWidth: 110, textAlign: "right" }}>
-                  Line: {formatCurrentcy(item.price * item.qty)}
+                  Line: {formatCurrency(item.price * item.qty)}
                 </div>
 
                 <button onClick={() => handleRemove(item.id)}>Remove</button>
               </div>
-            ))}
+            )
+            }
+            )}
           </div>
         )}
       </div>
@@ -239,7 +314,11 @@ export default function App() {
       {visibleProducts.length === 0 ? (
         <div>No products match your search.</div>
       ) : (
-        <ProductGrid products={visibleProducts} onAddToCart={handleAddToCart} />
+        <ProductGrid products={visibleProducts} 
+        onAddToCart={handleAddToCart} 
+        stockById={stockById}
+        cartQtyById={cartQtyById}
+        />
       )}
     </div>
   );
