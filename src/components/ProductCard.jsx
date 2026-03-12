@@ -1,4 +1,5 @@
 export function ProductCard({ product, onAdd, maxStock, inCartQty, reachedMax }) {
+  
   const outOfStock = (maxStock ?? product.stock ?? 0) <= 0
   const disabled = outOfStock || reachedMax;
   const label = outOfStock
@@ -8,6 +9,9 @@ export function ProductCard({ product, onAdd, maxStock, inCartQty, reachedMax })
   : "Add to Cart"
   return (
     <div style={{ border: "1px solid #ddd", padding: 12, borderRadius: 8 }}>
+      {product.isSale && (
+        <div style={{fontSize: 12, color: "#0a7", fontWeight: 600}}>SALE</div>
+      )}
       <div style={{ fontWeight: 600 }}>{product.name}</div>
       <div>Category: {product.category}</div>
       <div>Price: {product.price}</div>

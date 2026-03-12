@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { addToCart, calcCartTotals, updateQty, removeFromCart,formatCurrency } from "./utils";
+import {
+  addToCart,
+  calcCartTotals,
+  updateQty,
+  removeFromCart,
+  formatCurrency,
+} from "./utils";
 import { FilterBar } from "./components/filterBar";
 import { ProductGrid } from "./components/ProductsGrid";
 import { useProducts } from "./hooks/useProducts";
@@ -25,8 +31,7 @@ export default function App() {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [toast, setToast] = useState(null); // { type: "success"|"warn"|"info", message: string }
 
-
-  const {products, loading, error} = useProducts();
+  const { products, loading, error } = useProducts();
   // useEffect(() => {
   //   let isMounted = true;
 
@@ -63,8 +68,8 @@ export default function App() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      setDebouncedQuery(query); //ถ้าเวลานี้หมดไห้ setTimeout ทำงาน คือไห้เอาค่าของ query ไปเก็บไว้ใน setDebounceQuery 
-    }, 250);// แต่ถ้าเวลายังไม่หมดแล้วมีการพิมมาเพิ่มจะทำการ clearTimeoutของตัวจับเวลา t แล้วนับเวลาใหม่ 
+      setDebouncedQuery(query); //ถ้าเวลานี้หมดไห้ setTimeout ทำงาน คือไห้เอาค่าของ query ไปเก็บไว้ใน setDebounceQuery
+    }, 250); // แต่ถ้าเวลายังไม่หมดแล้วมีการพิมมาเพิ่มจะทำการ clearTimeoutของตัวจับเวลา t แล้วนับเวลาใหม่
 
     return () => clearTimeout(t);
   }, [query]);
@@ -72,17 +77,17 @@ export default function App() {
   // ===== cart handler =====
   function handleAddToCart(product) {
     const maxStock = product.stock ?? 0;
-    if(maxStock <= 0) {
-      showToast("warn","Out of stock");
+    if (maxStock <= 0) {
+      showToast("warn", "Out of stock");
       return;
     }
-    
-    setCart((prevCart) =>{
-      const existing = prevCart.find((x)=> x.id === product.id);
+
+    setCart((prevCart) => {
+      const existing = prevCart.find((x) => x.id === product.id);
       const currentQty = existing ? existing.qty : 0;
 
-      if(currentQty >= maxStock) {
-        showToast("warn","Reached max stock");
+      if (currentQty >= maxStock) {
+        showToast("warn", "Reached max stock");
         return prevCart;
       }
 
@@ -91,9 +96,8 @@ export default function App() {
       return addToCart(prevCart, {
         ...product,
         qty: 1,
-      })
-     }
-    );
+      });
+    });
   }
 
   const totals = calcCartTotals(cart);
@@ -113,9 +117,11 @@ export default function App() {
       if (sort === "price_asc") return a.price - b.price;
       return b.price - a.price;
     });
-    //ทำไมต้องมี stockById? cart มีแต่ item ที่เราใส่เข้าไป (อาจไม่เก็บ stock) เวลาเช็ค stock จะได้ไม่ต้องวนหาใน products ทุกครั้งแบบกระจัดกระจาย
-    const stockById = Object.fromEntries(products.map((p)=> [p.id, p.stock ?? 0]))
-    const cartQtyById = Object.fromEntries(cart.map((i) => [i.id, i.qty]));
+  //ทำไมต้องมี stockById? cart มีแต่ item ที่เราใส่เข้าไป (อาจไม่เก็บ stock) เวลาเช็ค stock จะได้ไม่ต้องวนหาใน products ทุกครั้งแบบกระจัดกระจาย
+  const stockById = Object.fromEntries(
+    products.map((p) => [p.id, p.stock ?? 0]),
+  );
+  const cartQtyById = Object.fromEntries(cart.map((i) => [i.id, i.qty]));
 
   function handleQueryChange(value) {
     setQuery(value);
@@ -129,9 +135,9 @@ export default function App() {
     setSort(value);
   }
 
-  function handleClearFilters(){
-    setQuery("")
-    setCategory("all")
+  function handleClearFilters() {
+    setQuery("");
+    setCategory("all");
     setSort("price_asc");
   }
   function handleIncrease(productId) {
@@ -140,12 +146,12 @@ export default function App() {
       if (!item) return prevCart;
 
       const maxStock = stockById[productId] ?? 0;
-      if(item.qty >= maxStock) {
+      if (item.qty >= maxStock) {
         showToast("warn", "Reached max stock");
         return prevCart;
       }
 
-      showToast("success","Quantity increased");
+      showToast("success", "Quantity increased");
       return updateQty(prevCart, productId, item.qty + 1);
     });
   }
@@ -161,13 +167,13 @@ export default function App() {
 
   function handleRemove(productId) {
     setCart((prevCart) => removeFromCart(prevCart, productId));
-    showToast("info", "Removed item")
+    showToast("info", "Removed item");
   }
   //เก็บ toast ใน state → UI render ตาม setTimeout ลบ toast หลัง 2 วิ clearTimeout กัน toast เก่าทับซ้อนกัน
-  function showToast(type, message){
-    setToast({ type,message});
+  function showToast(type, message) {
+    setToast({ type, message });
     window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(()=> setToast(null),2000);
+    showToast._t = window.setTimeout(() => setToast(null), 2000);
   }
 
   if (loading) {
@@ -180,6 +186,7 @@ export default function App() {
         <div style={{ color: "crimsom", fontWeight: 600 }}>ERROR</div>
         <div>{error}</div>
         <button
+          type="botton"
           onClick={() => window.location.reload()}
           style={{ marginTop: 12 }}
         >
@@ -192,30 +199,34 @@ export default function App() {
   return (
     <div style={{ padding: 16 }}>
       <h1>Wheel & Tire Shop</h1>
-    
-    {/* toast */}
-    {toast && (
-      <div
-      style={{
-        marginBottom: 12,
-        padding: 10,
-        borderRadius: 8,
-        border: "1px solid #ddd",
-        background:
-        toast.type === "success"
-        ? "#e8fff0"
-        : toast.type === "warn"
-        ? "#fff7e6"
-        : "#eef5ff",
-      }}
-      >
-        {toast.message}
-      </div>
-    )}
 
-    <div style={{marginBottom:9, fontSize: 12, color: "#555"}}>
-      Showing {visibleProducts.length} of {products.length} product
-    </div>
+      <div style={{ marginBottom: 12, fontSize: 12, color: "#555" }}>
+        Item in cart <b>{totals.totalqty}</b>
+      </div>
+
+      {/* toast */}
+      {toast && (
+        <div
+          style={{
+            marginBottom: 12,
+            padding: 10,
+            borderRadius: 8,
+            border: "1px solid #ddd",
+            background:
+              toast.type === "success"
+                ? "#e8fff0"
+                : toast.type === "warn"
+                  ? "#fff7e6"
+                  : "#eef5ff",
+          }}
+        >
+          {toast.message}
+        </div>
+      )}
+
+      <div style={{ marginBottom: 9, fontSize: 12, color: "#555" }}>
+        Showing {visibleProducts.length} of {products.length} product
+      </div>
 
       <FilterBar
         query={query}
@@ -242,6 +253,7 @@ export default function App() {
       </div>
 
       {/* Cart List */}
+
       <div
         style={{
           marginBottom: 16,
@@ -258,55 +270,63 @@ export default function App() {
             {cart.map((item) => {
               const maxStock = stockById[item.id] ?? 0;
               const isAtMax = item.qty >= maxStock;
-              return(
+              const canDecrease = item.qty > 1;
+              return (
+                <div
+                  key={item.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    padding: 10,
+                    border: "1px solid #eee",
+                    borderRadius: 8,
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>{item.name}</div>
+                    <div style={{ fontSize: 12 }}>Price: {item.price}</div>
 
-             
-              
-              <div
-                key={item.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  padding: 10,
-                  border: "1px solid #eee",
-                  borderRadius: 8,
-                }}
-              >
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600 }}>{item.name}</div>
-                  <div style={{ fontSize: 12 }}>Price: {item.price}</div>
-
-                  {/* {showstock} */}
-                  <div style={{ fontSize: 12, color: "#666"}}>
-                    Stock: {maxStock}
+                    {/* {showstock} */}
+                    <div style={{ fontSize: 12, color: "#666" }}>
+                      Stock: {maxStock}
+                    </div>
                   </div>
-                </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <button onClick={() => handleDecrease(item.id)}>-</button>
-                  <div style={{ minWidth: 24, textAlign: "center" }}>
-                    {item.qty}
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => handleDecrease(item.id)} //มันจะเอาค่าของ canDecrease มากลับหรือ not เช่น const canDecrease = item.qty > 1 ถ้ามากกว่า 1 ปุ่ม - จะเป็น ture
+                      disabled={!canDecrease} //ซึ่งถ้าเราเอา ture ไปใส่ตรงๆมันจะเป็น disable = ture หมายความว่าปุ่มโดนปิด ซึ่งความต้องการเราคือถ้า ture ปุ่มต้องเปิด
+                      style={{ opacity: canDecrease ? 1 : 0.5 }} //จุดนี้เราจึงเติม not! เพื่อกลับค่าจาก ture ไห้เป็น แปลวาสถ้า item.qty > 1 ไห้ disable = false ปุ่มเปิดปกติ ถ้าเมื่อไหร่ canDecrease เป็น false วึ่งหมายความว่า item.qty มันเป็น 1 พอมาเจอ not มันจะกลับค่าไห้ disable = ture ปุ่มต้องปิดไม่หาย
+                    >
+                      -
+                    </button>
+                    <div style={{ minWidth: 24, textAlign: "center" }}>
+                      {item.qty}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleIncrease(item.id)}
+                      style={{ opacity: maxStock === 0 || isAtMax ? 0.5 : 1 }}
+                    >
+                      +
+                    </button>
                   </div>
+
+                  <div style={{ minWidth: 110, textAlign: "right" }}>
+                    Line: {formatCurrency(item.price * item.qty)}
+                  </div>
+
                   <button 
                   type="button"
-                  onClick={() => handleIncrease(item.id)}
-                  style={{opacity: maxStock === 0 || isAtMax ? 0.5 : 1}}
-                  >
-                    +
-                  </button>
+                  onClick={() => handleRemove(item.id)}>Remove</button>
                 </div>
-
-                <div style={{ minWidth: 110, textAlign: "right" }}>
-                  Line: {formatCurrency(item.price * item.qty)}
-                </div>
-
-                <button onClick={() => handleRemove(item.id)}>Remove</button>
-              </div>
-            )
-            }
-            )}
+              );
+            })}
           </div>
         )}
       </div>
@@ -314,10 +334,11 @@ export default function App() {
       {visibleProducts.length === 0 ? (
         <div>No products match your search.</div>
       ) : (
-        <ProductGrid products={visibleProducts} 
-        onAddToCart={handleAddToCart} 
-        stockById={stockById}
-        cartQtyById={cartQtyById}
+        <ProductGrid
+          products={visibleProducts}
+          onAddToCart={handleAddToCart}
+          stockById={stockById}
+          cartQtyById={cartQtyById}
         />
       )}
     </div>
