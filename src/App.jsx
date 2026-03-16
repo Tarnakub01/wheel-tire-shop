@@ -9,6 +9,10 @@ import {
 import { FilterBar } from "./components/filterBar";
 import { ProductGrid } from "./components/ProductsGrid";
 import { useProducts } from "./hooks/useProducts";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { NavBar } from "./components/NavBar";
+import { ProductsPage } from "./pages/ProductsPage";
+import { CartPage } from "./pages/CartPage";
 const CART_STORAGE_KEY = "wheel-tire-shop:cart:v1";
 
 export default function App() {
@@ -200,6 +204,33 @@ export default function App() {
     <div style={{ padding: 16 }}>
       <h1>Wheel & Tire Shop</h1>
 
+      <NavBar cartCount={totals.totalqty} />
+
+      <Routes>
+        <Route
+          path="/products"
+          element={
+            <ProductsPage>
+              {/* เดี๋ยวชั่วโมงหน้าเราย้าย content catalog มาไว้ในนี้ */}
+              <div>Catalog goes here</div>
+            </ProductsPage>
+          }
+        />
+
+        <Route
+          path="/cart"
+          element={
+            <CartPage>
+              {/* เดี๋ยวชั่วโมงหน้าเราย้าย cart UI มาไว้ในนี้ */}
+              <div>Cart UI goes here</div>
+            </CartPage>
+          }
+        />
+
+        <Route path="/" element={<Navigate to="/products" replace />} />
+        <Route path="*" element={<div>Not Found</div>} />
+      </Routes>
+
       <div style={{ marginBottom: 12, fontSize: 12, color: "#555" }}>
         Item in cart <b>{totals.totalqty}</b>
       </div>
@@ -321,9 +352,9 @@ export default function App() {
                     Line: {formatCurrency(item.price * item.qty)}
                   </div>
 
-                  <button 
-                  type="button"
-                  onClick={() => handleRemove(item.id)}>Remove</button>
+                  <button type="button" onClick={() => handleRemove(item.id)}>
+                    Remove
+                  </button>
                 </div>
               );
             })}
