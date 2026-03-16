@@ -4,7 +4,6 @@ import {
   calcCartTotals,
   updateQty,
   removeFromCart,
-  formatCurrency,
 } from "./utils";
 import { FilterBar } from "./components/filterBar";
 import { ProductGrid } from "./components/ProductsGrid";
@@ -13,6 +12,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { NavBar } from "./components/NavBar";
 import { ProductsPage } from "./pages/ProductsPage";
 import { CartPage } from "./pages/CartPage";
+import { ProductDetailPage } from "./pages/ProductDetailPage";
 const CART_STORAGE_KEY = "wheel-tire-shop:cart:v1";
 
 export default function App() {
@@ -210,122 +210,53 @@ export default function App() {
         <Route
           path="/products"
           element={
-            <ProductsPage>
-              {/* เดี๋ยวชั่วโมงหน้าเราย้าย content catalog มาไว้ในนี้ */}
-              <div>Catalog goes here</div>
-            </ProductsPage>
+            <ProductsPage
+              toast={toast}
+              visibleCount={visibleProducts.length}
+              totalCount={products.length}
+              query={query}
+              onQueryChange={handleQueryChange}
+              category={category}
+              onCategoryChange={handleCategoryChange}
+              sort={sort}
+              onSortChange={handleSortChange}
+              onClear={handleClearFilters}
+              visibleProducts={visibleProducts}
+              onAddToCart={handleAddToCart}
+              stockById={stockById}
+              cartQtyById={cartQtyById}
+
+            />
           }
         />
 
         <Route
           path="/cart"
           element={
-            <CartPage>
-              {/* เดี๋ยวชั่วโมงหน้าเราย้าย cart UI มาไว้ในนี้ */}
-              <div>Cart UI goes here</div>
-            </CartPage>
+            <CartPage
+              cart={cart}
+              totals={totals}
+              stockById={stockById}
+              onIncrease={handleIncrease}
+              onDecrease={handleDecrease}
+              onRemove={handleRemove}
+            />
           }
+        />
+
+        <Route
+        path="/products/:id"
+        element={<ProductDetailPage products={products} onAddToCart={handleAddToCart} />} 
         />
 
         <Route path="/" element={<Navigate to="/products" replace />} />
         <Route path="*" element={<div>Not Found</div>} />
       </Routes>
 
-      <div style={{ marginBottom: 12, fontSize: 12, color: "#555" }}>
-        Item in cart <b>{totals.totalqty}</b>
-      </div>
 
-      {/* toast */}
-      {toast && (
-        <div
-          style={{
-            marginBottom: 12,
-            padding: 10,
-            borderRadius: 8,
-            border: "1px solid #ddd",
-            background:
-              toast.type === "success"
-                ? "#e8fff0"
-                : toast.type === "warn"
-                  ? "#fff7e6"
-                  : "#eef5ff",
-          }}
-        >
-          {toast.message}
-        </div>
-      )}
 
-      <div style={{ marginBottom: 9, fontSize: 12, color: "#555" }}>
-        Showing {visibleProducts.length} of {products.length} product
-      </div>
-
-      <FilterBar
-        query={query}
-        onQueryChange={handleQueryChange}
-        category={category}
-        onCategoryChange={handleCategoryChange}
-        sort={sort}
-        onSortChange={handleSortChange}
-        onClear={handleClearFilters}
-      />
-
-      {/* Cart Summary */}
-      <div
-        style={{
-          marginBottom: 16,
-          padding: 12,
-          border: "1px solid #ddd",
-          borderRadius: 8,
-        }}
-      >
-        <div style={{ fontWeight: 600 }}>Cart Summary</div>
-        <div>Total Qty: {totals.totalqty}</div>
-        <div>Subtotal: {formatCurrency(totals.subtotal)}</div>
-      </div>
-
-      {/* Cart List */}
-
-      <div
-        style={{
-          marginBottom: 16,
-          padding: 12,
-          border: "1px solid #ddd",
-          borderRadius: 8,
-        }}
-      >
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>Cart Item</div>
-        {cart.length === 0 ? (
-          <div>Your cart is empty.</div>
-        ) : (
-          <div style={{ display: "grid", gap: 8 }}>
-            {cart.map((item) => {
-              const maxStock = stockById[item.id] ?? 0;
-              const isAtMax = item.qty >= maxStock;
-              const canDecrease = item.qty > 1;
-              return (
-                <div
-                  key={item.id}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 12,
-                    padding: 10,
-                    border: "1px solid #eee",
-                    borderRadius: 8,
-                  }}
-                >
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600 }}>{item.name}</div>
-                    <div style={{ fontSize: 12 }}>Price: {item.price}</div>
-
-                    {/* {showstock} */}
-                    <div style={{ fontSize: 12, color: "#666" }}>
-                      Stock: {maxStock}
-                    </div>
-                  </div>
-
-                  <div
+     
+                  {/* <div
                     style={{ display: "flex", alignItems: "center", gap: 6 }}
                   >
                     <button
@@ -346,32 +277,8 @@ export default function App() {
                     >
                       +
                     </button>
-                  </div>
+                  </div> */}
 
-                  <div style={{ minWidth: 110, textAlign: "right" }}>
-                    Line: {formatCurrency(item.price * item.qty)}
-                  </div>
-
-                  <button type="button" onClick={() => handleRemove(item.id)}>
-                    Remove
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {visibleProducts.length === 0 ? (
-        <div>No products match your search.</div>
-      ) : (
-        <ProductGrid
-          products={visibleProducts}
-          onAddToCart={handleAddToCart}
-          stockById={stockById}
-          cartQtyById={cartQtyById}
-        />
-      )}
     </div>
   );
 }
