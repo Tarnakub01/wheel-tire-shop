@@ -29,3 +29,22 @@ Live Demo: <PUT_YOUR_NETLIFY_URL_HERE>
 ```bash
 npm install
 npm run dev
+
+```md id="https://wheel-tire-shop.netlify.app/products"
+## 📸 Screenshots
+
+### 🏠 Products Page
+![หน้ารวมสินค้าและระบบค้นหา](public/screenshots/products.png)
+
+### 🛒 Cart & Checkout
+![หน้าตะกร้าสินค้าและระบบดักสต๊อก](public/screenshots/cart.png)
+
+### 🔍 Product Detail
+![หน้ารายละเอียดสินค้า](public/screenshots/detail.png)
+
+## What I Built / Highlights
+- Responsive product catalog with Search / Filter / Sort (derived state)
+- Cart with immutable updates + stock enforcement
+- React Router pages: Products, Cart, Product Detail
+- Toast notifications + localStorage persistence
+- Deployed to Netlify with SPA redirect for deep links
