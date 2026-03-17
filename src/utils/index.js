@@ -1,5 +1,5 @@
 export * from "./calc.js";
-export * from "./cart.js";
+export * from "./cart.ts";
 export * from "./format.ts";
 
 // ทำไมต้องทำแบบนี้? เวลาขึ้น React จริง คุณจะ import จากที่เดียว เช่น:

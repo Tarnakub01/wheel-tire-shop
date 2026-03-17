@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { formatCurrency } from "../utils";
 export function ProductCard({
   product,
   onAdd,
@@ -25,7 +26,7 @@ export function ProductCard({
         {product.name}
       </Link>
       <div>Category: {product.category}</div>
-      <div>Price: {product.price}</div>
+      <div>Price: {formatCurrency(product.price)}</div>
       <div>Stock: {maxStock ?? product.stock}</div>
       <div>In cart: {inCartQty}</div>
 

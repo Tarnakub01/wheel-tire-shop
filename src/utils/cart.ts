@@ -1,4 +1,5 @@
-export function calcLineTotal(item){
+import type { CartItem, CartTotals, Product } from "../types";
+export function calcLineTotal(item:Product){
     if(!item || typeof item.price !== "number" || typeof item.qty !== "number"){
         throw new Error("Invalid item: price and qty must be number");
     }
@@ -9,7 +10,7 @@ export function calcLineTotal(item){
     return item.price * item.qty
 }
 
-export function calcCartTotals(cart){
+export function calcCartTotals(cart:CartItem[]):CartTotals{
     if (!Array.isArray(cart)) throw new Error("cart must be an array");
 
     return cart.reduce(
@@ -23,12 +24,12 @@ export function calcCartTotals(cart){
     )
 }
 
-export function getSaleItems(cart){
+export function getSaleItems(cart:CartItem[]):CartItem[]{
     if(!Array.isArray(cart)) throw new Error("cart must be an array");
     return cart.filter((item) => item.isSale === true);
 }
 
-export function applyDiscount(cart, rate){
+export function applyDiscount(cart:CartItem[], rate:number){
     if(!Array.isArray(cart)) throw new Error("cart must be an array");
     if(typeof rate !== "number" || rate < 0 || rate > 1){
         throw new Error("rate must be a number between 0 and 1");
@@ -41,11 +42,11 @@ export function applyDiscount(cart, rate){
 }
 
 
-export function addToCart(cart, product) {
+export function addToCart(cart: CartItem[] , product: Product & {qty?: number}): CartItem[] {
   if (!Array.isArray(cart)) {
     throw new Error("cart must be an array");
   }
-  if (!product || typeof product.id === "undefined") {
+  if (!product || typeof product.id !== "number") {
     throw new Error("product must have an id");
   }
 
@@ -70,13 +71,20 @@ export function addToCart(cart, product) {
     });
   }
 
+  // if (existingItem) {
+  //   const addQty = product.qty ?? 1;
+  //   return cart.map((item) =>
+  //     item.id === product.id ? { ...item, qty: item.qty + addQty } : item
+  //   );
+  // }
+
   return cart.concat({
     ...product,
     qty: product.qty ?? 1,
   });
 }
 
-export function removeFromCart(cart, productId){
+export function removeFromCart(cart: CartItem[], productId: number):CartItem[]{
     if(!Array.isArray(cart)) throw new Error("cart must be an array");
     if(typeof productId === "undefined") throw new Error("product is required");
 
@@ -87,7 +95,7 @@ export function removeFromCart(cart, productId){
 
 
 // ให้ removeFromCart อยู่เหนือ updateQty ในไฟล์เดียวกันได้เลย
-export function updateQty(cart, productId, qty) {
+export function updateQty(cart:CartItem[], productId: number, qty:number):CartItem[] {
   if (!Array.isArray(cart)) {
     throw new Error("cart must be an array");
   }
