@@ -13,6 +13,7 @@ import { NavBar } from "./components/NavBar";
 import { ProductsPage } from "./pages/ProductsPage";
 import { CartPage } from "./pages/CartPage";
 import { ProductDetailPage } from "./pages/ProductDetailPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 const CART_STORAGE_KEY = "wheel-tire-shop:cart:v1";
 
 export default function App() {
@@ -206,6 +207,26 @@ export default function App() {
 
       <NavBar cartCount={totals.totalqty} />
 
+       {/* toast */}
+            {toast && (
+                <div
+                style={{
+                    marginBottom: 12,
+                    padding: 10,
+                    borderRadius: 8,
+                    border: "1px solid #ddd",
+                    background:
+                    toast.type === "success"
+                    ? "#e8fff0"
+                    : toast.type === "warn"
+                    ? "#fff7e6"
+                    : "#eef5ff",
+                }}
+                >
+                    {toast.message}
+                </div>
+            )}
+
       <Routes>
         <Route
           path="/products"
@@ -250,7 +271,7 @@ export default function App() {
         />
 
         <Route path="/" element={<Navigate to="/products" replace />} />
-        <Route path="*" element={<div>Not Found</div>} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
 
 

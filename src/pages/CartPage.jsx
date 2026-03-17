@@ -80,7 +80,7 @@ export function CartPage({
                       type="button"
                       onClick={() => onDecrease(item.id)}
                       disabled={!canDecrease}
-                      style={{ opacity: canDecrease ? 0.5 : 1 }}
+                      style={{ opacity: canDecrease ? 1 : 0.5 }}
                     >
                       -
                     </button>
