@@ -38,12 +38,6 @@ async function fetchProducts(){
 
 export async function getProducts() {
   try {
-    await delay(1000);
-
-    if (shouldFail()) {
-      throw new Error("Simulated network error");
-    }
-
     const data = await Promise.race([
         fetchProducts(),
         timeout(1500),
@@ -71,13 +65,13 @@ export async function getProducts() {
 }
 
 
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// function delay(ms) {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }
 
-function shouldFail() {
-  return Math.random() < 0.5; // 50% พัง
-}
+// function shouldFail() {
+//   return Math.random() < 0.5; // 50% พัง
+// }
 
 function timeout(ms){
     return new Promise((_, reject)=>{ // promise จะบังคับรับค่าอยู่ค่าคือ resolve หรือสำเร็จ กับ reject หรือล้มเหลวตามตำแหน่ง
