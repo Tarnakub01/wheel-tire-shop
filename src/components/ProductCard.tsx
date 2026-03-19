@@ -1,12 +1,26 @@
 import { Link } from "react-router-dom";
 import { formatCurrency } from "../utils";
+import type { Product } from "../types";
+
+type ProductCardProps = {
+  product: Product;
+  onAdd: (product: Product) => void;
+  maxStock?: number;
+  inCartQty?: number;
+  reachedMax?: boolean;
+};
+
 export function ProductCard({
   product,
   onAdd,
   maxStock,
-  inCartQty,
-  reachedMax,
-}) {
+  inCartQty, //= 0
+  reachedMax, //= false
+}:ProductCardProps) {
+  // const stock = maxStock ?? product.stock ?? 0;
+  // const disabled = stock <= 0 || reachedMax;
+  // const label =
+  //   stock <= 0 ? "Out of Stock" : reachedMax ? "Max stock reached" : "Add to Cart";
   const outOfStock = (maxStock ?? product.stock ?? 0) <= 0;
   const disabled = outOfStock || reachedMax;
   const label = outOfStock
@@ -27,6 +41,7 @@ export function ProductCard({
       </Link>
       <div>Category: {product.category}</div>
       <div>Price: {formatCurrency(product.price)}</div>
+      {/* <div>Stock: {stock}</div> */}
       <div>Stock: {maxStock ?? product.stock}</div>
       <div>In cart: {inCartQty}</div>
 
