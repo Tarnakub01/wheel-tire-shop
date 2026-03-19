@@ -5,7 +5,7 @@ export type Product = {
     name: string;
     category: string;
     price: number;
-    qty: number;
+    qty?: number;
     stock?: number;
     isSale?: boolean;
 };
@@ -23,4 +23,17 @@ export type CartItem = {
 export type CartTotals = {
     subtotal: number;
     totalqty: number;
+}
+
+export type AppErrorType = "TIMEOUT" | "NETWORK" | "HTTP" | "UNKNOWN";
+
+export type AppError = {
+    type: AppErrorType;
+    message: string;
+    originalError?: unknown;
+};
+
+export type ApiResult<T> = {
+    data: T | null;
+    error: AppError | null;    
 }

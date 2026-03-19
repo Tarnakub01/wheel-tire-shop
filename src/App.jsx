@@ -189,9 +189,9 @@ export default function App() {
     return (
       <div style={{ padding: 16 }}>
         <div style={{ color: "crimsom", fontWeight: 600 }}>ERROR</div>
-        <div>{error}</div>
+        <div>{error?.message}</div>
         <button
-          type="botton"
+          type="button"
           onClick={() => window.location.reload()}
           style={{ marginTop: 12 }}
         >
